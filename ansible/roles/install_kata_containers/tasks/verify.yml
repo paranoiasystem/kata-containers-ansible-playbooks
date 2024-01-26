@@ -1,0 +1,31 @@
+- name: Verify if kata-runtime is installed
+  ansible.builtin.command: kata-runtime --version
+  register: kata_runtime_version
+  failed_when: false
+  changed_when: false
+  ignore_errors: true
+
+- name: Show kata-runtime version
+  ansible.builtin.debug:
+    msg: "La versione di kata-runtime installata è {{ kata_runtime_version.stdout_lines }}"
+  when: kata_runtime_version.rc == 0
+
+- name: Pull BusyBox image using ctr
+  ansible.builtin.command:
+    cmd: ctr image pull docker.io/library/busybox:latest
+  register: pull_result
+  failed_when: pull_result.rc != 0
+  changed_when: "'docker.io/library/busybox:latest: resolved' in pull_result.stdout"
+
+- name: Run BusyBox container with Kata Containers runtime
+  ansible.builtin.command:
+    cmd: ctr run --runtime "io.containerd.kata.v2" --rm -t docker.io/library/busybox:latest test-kata uname -r
+  register: run_result
+  failed_when: run_result.rc != 0
+  changed_when: false
+  ignore_errors: true
+
+- name: Show output from BusyBox container
+  ansible.builtin.debug:
+    msg: "{{ run_result.stdout_lines }}"
+  when: run_result.rc == 0

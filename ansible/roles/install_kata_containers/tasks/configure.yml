@@ -1,0 +1,16 @@
+- name: Configure containerd to use Kata Containers
+  ansible.builtin.blockinfile:
+    path: /etc/containerd/config.toml
+    marker: "# {mark} ANSIBLE MANAGED BLOCK FOR KATA CONTAINERS"
+    block: |
+      [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.kata]
+        runtime_type = "io.containerd.kata.v2"
+    insertafter: "\\[plugins.\"io.containerd.grpc.v1.cri\".containerd.runtimes\\]"
+    backup: true
+  register: kata_configured
+
+- name: Restart containerd
+  ansible.builtin.service:
+    name: containerd
+    state: restarted
+  when: kata_configured.changed

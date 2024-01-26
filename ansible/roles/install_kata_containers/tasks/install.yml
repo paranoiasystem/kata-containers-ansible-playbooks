@@ -1,0 +1,42 @@
+- name: Create temp directory for Kata Containers
+  ansible.builtin.file:
+    path: /tmp/kata_temp
+    state: directory
+    mode: '0755'
+
+- name: Download Kata Containers tarball
+  ansible.builtin.get_url:
+    url: "{{ kata_containers_url }}"
+    dest: "/tmp/kata_temp/kata-static-{{ kata_containers_version }}-{{ kata_containers_arch }}.tar.xz"
+    mode: '0644'
+
+- name: Extract Kata Containers tarball
+  ansible.builtin.unarchive:
+    src: "/tmp/kata_temp/kata-static-{{ kata_containers_version }}-{{ kata_containers_arch }}.tar.xz"
+    dest: "/tmp/kata_temp"
+    remote_src: true
+
+- name: Create Kata Containers directories
+  ansible.builtin.file:
+    path: /opt/kata/
+    state: directory
+    mode: '0755'
+
+- name: Install Kata Containers binaries
+  ansible.builtin.copy:
+    src: /tmp/kata_temp/opt/kata/
+    dest: /opt/kata
+    remote_src: true
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create symbolic links for Kata Containers binaries
+  ansible.builtin.file:
+    src: "/opt/kata/bin/{{ item.src }}"
+    dest: "/usr/local/bin/{{ item.dest }}"
+    state: link
+  loop:
+  - {src: 'containerd-shim-kata-v2', dest: 'containerd-shim-kata-v2'}
+  - {src: 'kata-runtime', dest: 'kata-runtime'}
+  - {src: 'kata-collect-data.sh', dest: 'kata-collect-data.sh'}

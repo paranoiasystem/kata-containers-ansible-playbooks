@@ -1,0 +1,5 @@
+kata_containers_version: "3.2.0"
+kata_containers_arch: "amd64"
+kata_containers_download_base_url: https://github.com/kata-containers/kata-containers/releases/download/
+kata_containers_filename: kata-static-{{ kata_containers_version }}-{{ kata_containers_arch }}.tar.xz
+kata_containers_url: "{{ kata_containers_download_base_url }}/{{ kata_containers_version }}/{{ kata_containers_filename }}"

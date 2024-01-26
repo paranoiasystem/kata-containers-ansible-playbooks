@@ -1,0 +1,8 @@
+- name: Install Tasks
+  ansible.builtin.include_tasks: install.yml
+- name: Configure Tasks
+  ansible.builtin.include_tasks: configure.yml
+- name: Verify Tasks
+  ansible.builtin.include_tasks: verify.yml
+- name: Cleanup Tasks
+  ansible.builtin.include_tasks: cleanup.yml
